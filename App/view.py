@@ -25,6 +25,7 @@ import threading
 import sys
 import controller
 from DISClib.ADT import list as lt
+from DISClib.Utils import error as error
 assert cf
 from DISClib.ADT import stack
 
@@ -89,6 +90,8 @@ def thread_cycle():
 
             print('El número de componentes conectados es: ' +
             str(controller.connectedComponents(cont)))
+
+            
             try:
                 conectados = controller.landingPointsConnected(cont, lp1, lp2)
                 if conectados:
@@ -99,23 +102,45 @@ def thread_cycle():
                 print("los vertices no están conectados o alguno de los dos no existe")
 
         elif int(inputs[0]) == 4:
-            lp1 = input("Ingrese el landing point 1: ")
-            lp2 = input("Ingrese el landing point 2: ")
+            pais1 = input("Ingrese el pais 1: ")
+            pais2 = input("Ingrese el pais 2: ")
+            try:
+                controller.minimumCostPathsPais(cont, pais1)
 
-            controller.minimumCostPaths(cont, lp1)
+                try:
+                    path = controller.minimumCostPathPais(cont, pais2)
+                    
+                    if path is not None:
+                        pathlen = stack.size(path)
+                        print('El camino es de longitud: ' + str(pathlen))
+                        while (not stack.isEmpty(path)):
+                            stop = stack.pop(path)
+                            print(stop)
+                    else:
+                        print('No hay camino')
+                except Exception as exp:
+                    print("no hay un camino 2", exp)  
+                    error.reraise(exp)
+            except Exception as exp:
+                print("no hay un camino 1", exp)
+                error.reraise(exp)  
+        elif int(inputs[0]) == 5:
+            mst = controller.mst(cont)
 
+            print("El numero de nodos conectados a la red de expansion minima es", mst[0] )
+            print("El costo total (distancia) es: ", mst[1])
 
-            path = controller.minimumCostPath(cont, lp2)
+            print("el camino de la rama mas larga es:")
+
+            path = mst[2]
+                    
             if path is not None:
                 pathlen = stack.size(path)
-                print('El camino es de longitud: ' + str(pathlen))
                 while (not stack.isEmpty(path)):
                     stop = stack.pop(path)
                     print(stop)
             else:
                 print('No hay camino')
-        elif int(inputs[0]) == 5:
-            mst = controller.mst(cont)
         else:
          sys.exit(0)
     sys.exit(0)

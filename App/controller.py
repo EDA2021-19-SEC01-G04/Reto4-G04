@@ -78,8 +78,18 @@ def landingPointsConnected(analyzer, lpId1, lpId2):
 def minimumCostPaths(analyzer, lp1):
     return model.minimumCostPaths(analyzer, lp1)
 
+def minimumCostPathsPais(analyzer, pais1):
+    lp1 = model.getLandingPointByCountry(analyzer, pais1)
+    print("lp1", pais1, lp1)
+    return minimumCostPaths(analyzer, lp1)
+
 def minimumCostPath(analyzer, lp2):
     return model.minimumCostPath(analyzer, lp2)
+
+def minimumCostPathPais(analyzer, pais2):
+    lp2 = model.getLandingPointByCountry(analyzer, pais2)
+    print("lp2", pais2, lp2)
+    return minimumCostPath(analyzer, lp2)
 
 def mst(analyzer):
     return model.mst(analyzer)
@@ -89,6 +99,6 @@ El controlador se encarga de mediar entre la vista y el modelo.
 """
 
 def loadData(analyzer):
+    loadLandingPoints(analyzer) 
     loadCountries(analyzer)
-    loadLandingPoints(analyzer)
     loadConnections(analyzer)

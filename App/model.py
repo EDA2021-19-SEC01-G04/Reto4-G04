@@ -35,6 +35,7 @@ from DISClib.Algorithms.Graphs import dijsktra as djk
 from DISClib.Algorithms.Graphs import prim
 from DISClib.Utils import error as error
 assert config
+import copy
 from math import *
 
 
@@ -63,6 +64,8 @@ def newAnalyzer():
         analyzer['landingPoints'] = m.newMap(numelements=14000,
                                      maptype='PROBING',
                                      comparefunction=compareLandingPoints)
+
+        analyzer['lstlandingPoints'] = lt.newList()
         
         analyzer['connections'] = gr.newGraph(datastructure='ADJ_LIST',
                                               directed=True,
@@ -81,12 +84,21 @@ def newAnalyzer():
 # Funciones para agregar info al analyzer
 
 def addCountry(analyzer, country):
-    entry = m.get(analyzer['countries'], country['CountryCode'])
+    entry = m.get(analyzer['countries'], country['CountryName'])
     if entry is None:
         datentry = country
-        m.put(analyzer['countries'], country['CountryCode'], datentry)
+        minlp = None
+        mindistance = 99999999999
+        capital = {"latitude": country["CapitalLatitude"], "longitude": country["CapitalLongitude"]}
+        for l in lt.iterator(analyzer["lstlandingPoints"]):
+            distance = calculateDistance(l, capital)
+            if distance < mindistance:
+                minlp = copy.deepcopy(l)
+                mindistance = distance
+        datentry["capitalLandingPoint"] = copy.deepcopy(minlp)
+        m.put(analyzer['countries'], country['CountryName'], datentry)
     else:
-        print("chingas a tu madre weee, ese country ya existe nmms: id -", country['CountryCode'])
+        print("el country ya existe : id -", country['CountryName'])
 
     return analyzer
 
@@ -100,6 +112,7 @@ def addLandingPoint(analyzer, landingPoint):
     else:
         print("chingas a tu madre weee, ese lp ya existe nmms: id -", landingPoint['landing_point_id'])
 
+    lt.addLast(analyzer['lstlandingPoints'], landingPoint)
     addlandingPointToGraph(analyzer, landingPoint)
     return analyzer
 
@@ -239,17 +252,31 @@ def landingPointsConnected(analyzer, lpId1, lpId2):
     return scc.stronglyConnected(analyzer['components'], lpId1, lpId2)
 
 
+def getLandingPointByCountry(analyzer, pais):
+    entry = m.get(analyzer['countries'], pais)
+    if entry: 
+        country = me.getValue(entry)
+        return country["capitalLandingPoint"]
+    else:
+        print("el pais", pais, "no existe")
+
 def minimumCostPaths(analyzer, lp1):
-    analyzer['paths'] = djk.Dijkstra(analyzer['connections'], lp1)
+    analyzer['paths'] = djk.Dijkstra(analyzer['connections'], lp1["landing_point_id"])
     return analyzer
 
 def minimumCostPath(analyzer, lp2):
-    path = djk.pathTo(analyzer['paths'], lp2)
+    path = djk.pathTo(analyzer['paths'], lp2["landing_point_id"])
     return path
 
 def mst(analyzer):
     pr = prim.PrimMST(analyzer['connections'])
-    print(pr)
+    edges = prim.edgesMST(analyzer['connections'], pr)
+    distance = prim.weightMST(analyzer['connections'], pr)
+
+    minimumCostPaths(analyzer, {"landing_point_id": "3921"})
+    path = minimumCostPath(analyzer, {"landing_point_id": "3344"})
+
+    return(len(edges), str(distance) + "km", path)
 #Funciones de  comparación
 
 def compareLandingPoints(landingPoint, keyvaluesLandingPoints):
@@ -278,5 +305,6 @@ def getLandingPointById(analyzer, lpId):
         datentry = me.getValue(entry)
         return datentry["lp"]
     else:
-        print("chingas a tu madre weee, ese lp no existe nmms: id -", lpId)
+        print("el lp no existe: id -", lpId)
         error.reraise(None, "el landing point no existe")
+
