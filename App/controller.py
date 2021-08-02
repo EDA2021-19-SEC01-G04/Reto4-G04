@@ -20,19 +20,75 @@
  * along withthis program.  If not, see <http://www.gnu.org/licenses/>.
  """
 
+from App.model import getLandingPointById
 import config as cf
 import model
 import csv
 
+def initAnalyzer():
+
+    analyzer = model. newAnalyzer()
+    return analyzer 
+
+
+def loadCountries(analyzer): 
+    couFile = cf.data_dir + 'countries.csv'
+    input_file = csv.DictReader(open(couFile, encoding='utf-8'))
+    for co in input_file:
+        model.addCountry(analyzer, co)
+
+def loadLandingPoints(analyzer):
+    lpsFile = cf.data_dir + 'landing_points.csv'
+    input_file = csv.DictReader(open(lpsFile, encoding='utf-8'))
+    for lp in input_file:
+        model.addLandingPoint(analyzer, lp)
+
+def loadConnections(analyzer):
+    conFile = cf.data_dir + 'connections.csv'
+    input_file = csv.DictReader(open(conFile, encoding='utf-8'))
+    for con in input_file:
+        model.addConnection(analyzer, con)
+
+def totalLP(analyzer):
+    """
+    Total de paradas de autobus
+    """
+    return model.totalLP(analyzer)
+
+def totalConnections(analyzer):
+    """
+    Total de enlaces entre las paradas
+    """
+    return model.totalConnections(analyzer)
+
+def countriesSize(cont):
+
+    return model.countriesSize(cont)
+
+
+def connectedComponents(analyzer):
+    """
+    Numero de componentes fuertemente conectados
+    """
+    return model.connectedComponents(analyzer)
+
+def landingPointsConnected(analyzer, lpId1, lpId2):
+    return model.landingPointsConnected(analyzer, lpId1, lpId2)
+
+def minimumCostPaths(analyzer, lp1):
+    return model.minimumCostPaths(analyzer, lp1)
+
+def minimumCostPath(analyzer, lp2):
+    return model.minimumCostPath(analyzer, lp2)
+
+def mst(analyzer):
+    return model.mst(analyzer)
 
 """
 El controlador se encarga de mediar entre la vista y el modelo.
 """
 
-# Inicialización del Catálogo de libros
-
-# Funciones para la carga de datos
-
-# Funciones de ordenamiento
-
-# Funciones de consulta sobre el catálogo
+def loadData(analyzer):
+    loadCountries(analyzer)
+    loadLandingPoints(analyzer)
+    loadConnections(analyzer)

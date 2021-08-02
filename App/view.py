@@ -21,10 +21,12 @@
  """
 
 import config as cf
+import threading
 import sys
 import controller
 from DISClib.ADT import list as lt
 assert cf
+from DISClib.ADT import stack
 
 
 """
@@ -33,26 +35,94 @@ Presenta el menu de opciones y por cada seleccion
 se hace la solicitud al controlador para ejecutar la
 operación solicitada
 """
+# ___________________________________________________
+#  Variables
+# ___________________________________________________
+
+
+file = 'bus_routes_14000.csv'
+
+# ___________________________________________________
+#  Menu principal
+# ___________________________________________________
 
 def printMenu():
+    print("\n")
+    print("*******************************************")
     print("Bienvenido")
-    print("1- Cargar información en el catálogo")
-    print("2- ")
+    print("1- Inicializar Analizador")
+    print("2- Cargar Datos ")
+    print("3- Calcular componentes conectados")
+    print("4- Calcular ruta mínima")
+    print("5- Calcular MST")
 
-catalog = None
+
+cont = None
+
 
 """
 Menu principal
 """
-while True:
-    printMenu()
-    inputs = input('Seleccione una opción para continuar\n')
-    if int(inputs[0]) == 1:
-        print("Cargando información de los archivos ....")
+def thread_cycle():
+    while True:
+        printMenu()
+        inputs = input('Seleccione una opción para continuar\n>')
+        
+        if int(inputs[0]) == 1:
+            print("\nInicializando....")
+            # cont es el controlador que se usará de acá en adelante
+            cont = controller.initAnalyzer()
 
-    elif int(inputs[0]) == 2:
-        pass
+        elif int(inputs[0]) == 2:
+            print("\nCargando información de los landingPoints y las conexiones ....")
+            controller.loadData(cont) 
+            numedges = controller.totalConnections(cont)
+            numvertex = controller.totalLP(cont)
+            numcountries = controller.countriesSize(cont)
+            print('Numero de  landing points: ' + str(numvertex))
+            print('Numero de arcos: ' + str(numedges))
+            print('Total de países cargados: ' +str(numcountries))
+            print("")
+        elif int(inputs[0]) == 3:
+            lp1 = input("Ingrese el landing point 1: ")
+            lp2 = input("Ingrese el landing point 2: ")
 
-    else:
-        sys.exit(0)
-sys.exit(0)
+            print('El número de componentes conectados es: ' +
+            str(controller.connectedComponents(cont)))
+            try:
+                conectados = controller.landingPointsConnected(cont, lp1, lp2)
+                if conectados:
+                    print('Los landing points ', lp1, "y", lp2, "están en el mismo cluster")
+                else: 
+                    print('Los landing points ', lp1, "y", lp2, "NO están en el mismo cluster")
+            except:
+                print("los vertices no están conectados o alguno de los dos no existe")
+
+        elif int(inputs[0]) == 4:
+            lp1 = input("Ingrese el landing point 1: ")
+            lp2 = input("Ingrese el landing point 2: ")
+
+            controller.minimumCostPaths(cont, lp1)
+
+
+            path = controller.minimumCostPath(cont, lp2)
+            if path is not None:
+                pathlen = stack.size(path)
+                print('El camino es de longitud: ' + str(pathlen))
+                while (not stack.isEmpty(path)):
+                    stop = stack.pop(path)
+                    print(stop)
+            else:
+                print('No hay camino')
+        elif int(inputs[0]) == 5:
+            mst = controller.mst(cont)
+        else:
+         sys.exit(0)
+    sys.exit(0)
+
+
+if __name__ == "__main__":
+    threading.stack_size(67108864)  # 64MB stack
+    sys.setrecursionlimit(2 ** 25)
+    thread = threading.Thread(target=thread_cycle)
+    thread.start()
