@@ -28,6 +28,7 @@ from DISClib.ADT import list as lt
 from DISClib.Utils import error as error
 assert cf
 from DISClib.ADT import stack
+import time
 
 
 """
@@ -76,24 +77,37 @@ def thread_cycle():
 
         elif int(inputs[0]) == 2:
             print("\nCargando información de los landingPoints y las conexiones ....")
+            start_time = time.process_time()
+
+
             controller.loadData(cont) 
             numedges = controller.totalConnections(cont)
             numvertex = controller.totalLP(cont)
             numcountries = controller.countriesSize(cont)
+
+
+            stop_time = time.process_time()
+            elapsed_time_mseg = (stop_time - start_time)*1000
+
+
             print('Numero de  landing points: ' + str(numvertex))
             print('Numero de arcos: ' + str(numedges))
             print('Total de países cargados: ' +str(numcountries))
-            print("")
+            print("Tiempo de ejecución: ", elapsed_time_mseg)
+
+
         elif int(inputs[0]) == 3:
             lp1 = input("Ingrese el landing point 1: ")
             lp2 = input("Ingrese el landing point 2: ")
 
+            start_time = time.process_time()
             print('El número de componentes conectados es: ' +
             str(controller.connectedComponents(cont)))
 
             
             try:
                 conectados = controller.landingPointsConnected(cont, lp1, lp2)
+            
                 if conectados:
                     print('Los landing points ', lp1, "y", lp2, "están en el mismo cluster")
                 else: 
@@ -101,9 +115,17 @@ def thread_cycle():
             except:
                 print("los vertices no están conectados o alguno de los dos no existe")
 
+            stop_time = time.process_time()
+            elapsed_time_mseg = (stop_time - start_time)*1000
+
+            print("Tiempo de Ejecución :", elapsed_time_mseg)
+
+
         elif int(inputs[0]) == 4:
             pais1 = input("Ingrese el pais 1: ")
             pais2 = input("Ingrese el pais 2: ")
+
+            start_time = time.process_time()
             try:
                 controller.minimumCostPathsPais(cont, pais1)
 
@@ -124,7 +146,15 @@ def thread_cycle():
             except Exception as exp:
                 print("no hay un camino 1", exp)
                 error.reraise(exp)  
+
+            stop_time = time.process_time()
+            elapsed_time_mseg = (stop_time - start_time)*1000
+
+            print("Tiempo de Ejecución :", elapsed_time_mseg)
+
         elif int(inputs[0]) == 5:
+
+            start_time = time.process_time()
             mst = controller.mst(cont)
 
             print("El numero de nodos conectados a la red de expansion minima es", mst[0] )
@@ -141,6 +171,11 @@ def thread_cycle():
                     print(stop)
             else:
                 print('No hay camino')
+
+            stop_time = time.process_time()
+            elapsed_time_mseg = (stop_time - start_time)*1000
+            print("Tiempo de Ejecución :", elapsed_time_mseg)
+
         else:
          sys.exit(0)
     sys.exit(0)
